@@ -29,11 +29,11 @@ from raw_data;
 
 -- agrupando vendas por mes 
 select 
-date_format(date, '%b') as month,
-date_format(date, '%y') as year,
-sum(sales) as monthly_sales
+date_format(`date`, '%b') as month,
+date_format(`date`, '%y') as year,
+sum(`sales`) as monthly_sales
 from `data`
 group by 
-date_format(date, '%b'),
-date_format(date, '%y');
+date_format(`date`, '%b'),
+date_format(`date`, '%y');
 

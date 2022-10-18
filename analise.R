@@ -39,6 +39,7 @@ plot(treinamento_ts,
      xaxt="n",
      xlim=c(2010, 2013.25), type="l")
 
+title(main="Amostras de Treinamento e Teste")
 axis(1, at=seq(2010, 2013, 1), labels=format(seq(2010, 2013,1)))
 lines(validacao_ts, bty="l", col="red")
 
@@ -53,7 +54,8 @@ plot(modelo_naive,
      xlim=c(2010, 2013.25), bty="l", flty=2)
 
 axis(1, at=seq(2010, 2013, 1), labels=format(seq(2010, 2013, 1)))
-lines(validacao_ts)
+lines(validacao_ts, bty="l", col="red")
 
+accuracy(modelo_naive, validacao_ts)
 
 

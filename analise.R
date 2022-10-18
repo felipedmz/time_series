@@ -1,6 +1,6 @@
 library(dplyr)
 library(stringr)
-import = as_tibble(read.csv2("D:/Google Drive/MBA/analise de series temporais/trabalho/walmart-monthly-sales.csv"));
+import = as_tibble(read.csv2("D:\workspace\r_time_series/walmart-monthly-sales.csv"));
 
 # fomatando coluna periodo
 import$period = str_c(import$month, '-', import$year)
@@ -53,9 +53,9 @@ plot(modelo_naive,
      xaxt="n",
      xlim=c(2010, 2013.25), bty="l", flty=2)
 
+
 axis(1, at=seq(2010, 2013, 1), labels=format(seq(2010, 2013, 1)))
 lines(validacao_ts, bty="l", col="red")
 
 accuracy(modelo_naive, validacao_ts)
-
 

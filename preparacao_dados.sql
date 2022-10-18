@@ -1,5 +1,5 @@
 -- init
-create database wallmart;
+create database walmart;
 
 -- carregando dados
 create table raw_data (

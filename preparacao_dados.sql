@@ -1,6 +1,9 @@
 -- init
 create database walmart;
 
+GRANT ALL PRIVILEGES ON walmart.* TO 'local'@'%';
+FLUSH PRIVILEGES;
+
 -- carregando dados
 create table raw_data (
     `Store` varchar(255) default null,
@@ -15,13 +18,13 @@ LINES TERMINATED BY '\n'
 IGNORE 1 LINES;
 
 -- convertendo valores
-create table `data` (
+create table `cast_data` (
     `store` int not null,
     `date` date not null,
     `sales` decimal(10, 2) not null
 );
 
-insert into `data` select
+insert into `cast_data` select
 cast(`Store` as unsigned) as `store`,
 str_to_date(`Date`, '%d/%m/%Y') as `date`,
 cast(`Weekly_Sales` as DECIMAL(10, 2)) as `sales`
@@ -32,7 +35,7 @@ select
 date_format(`date`, '%b') as month,
 date_format(`date`, '%y') as year,
 sum(`sales`) as monthly_sales
-from `data`
+from `cast_data`
 group by 
 date_format(`date`, '%b'),
 date_format(`date`, '%y');

@@ -1,6 +1,7 @@
 library(dplyr)
 library(stringr)
-import = as_tibble(read.csv2("D:\workspace\r_time_series/walmart-monthly-sales.csv"));
+library(forecast)
+import = as_tibble(read.csv2("D:/workspace/r_time_series/data/walmart-monthly-sales.csv"));
 
 # fomatando coluna periodo
 import$period = str_c(import$month, '-', import$year)
@@ -57,5 +58,222 @@ plot(modelo_naive,
 axis(1, at=seq(2010, 2013, 1), labels=format(seq(2010, 2013, 1)))
 lines(validacao_ts, bty="l", col="red")
 
+# modelo baseline = Naive
 accuracy(modelo_naive, validacao_ts)
+
+
+### A) modelo de tendência exponencial
+
+modelo_tendencia_exp <- tslm(treinamento_ts ~ trend, lambda=0)
+summary(modelo_tendencia_exp)
+checkresiduals(modelo_tendencia_exp, test="LB")
+
+# observacao geral do modelo 
+
+plot(treinamento_ts, xlab="Tempo", ylab="Vendas", bty="l")
+lines(modelo_tendencia_exp$fitted.values, lwd=2, col='green')
+
+modelo_tendencia_exp_proj <- forecast(modelo_tendencia_exp, 
+                                      h = tam_amostra_teste, 
+                                      level=0)
+
+# modelo sobre a base de validacao
+
+plot(modelo_tendencia_exp_proj, 
+     xlab="Tempo", 
+     ylab="Vendas", 
+     xaxt="n", 
+     ylim=c(150, 300),
+     xlim=c(2010, 2013.25), 
+     bty="l", 
+     flty=2,
+     main="Projeção - Modelo de Regressão Exponencial")
+
+axis(1, at=seq(2010, 2013, 1), labels=format(seq(2010, 2013,1)))
+lines(validacao_ts, bty="l", col="red")
+
+accuracy(modelo_tendencia_exp_proj, validacao_ts)
+
+# resultado final para projecao da realidade
+
+modelo_tendencia_exp_final <- tslm(data_ts ~ trend, lambda = 0)
+summary(modelo_tendencia_exp_final)
+modelo_tendencia_exp_final_proj <- forecast(modelo_tendencia_exp_final, h=36, level=0.95)
+
+plot(modelo_tendencia_exp_final_proj, 
+     xlab="Tempo", 
+     ylab="Vendas", 
+     ylim=c(150, 300),
+     xlim=c(2010, 2013), 
+     bty="l", 
+     flty=2, 
+     main="Projeção Futura - Regressão Exponencial")
+lines(modelo_tendencia_exp_final_proj$fitted, lwd=2, col="blue")
+
+lines(validacao_ts, bty="l", col="red")
+
+
+### B) modelo de tendência polinomial
+
+modelo_tendencia_poli <- tslm(treinamento_ts ~ trend + I(trend^2))
+summary(modelo_tendencia_poli)
+checkresiduals(modelo_tendencia_poli, test="LB")
+
+# observacao geral do modelo 
+
+plot(treinamento_ts, xlab="Tempo", ylab="Vendas", bty="l")
+lines(modelo_tendencia_poli$fitted.values, lwd=2, col='green')
+
+modelo_tendencia_poli_proj <- forecast(modelo_tendencia_poli, h = tam_amostra_teste, level=0.95)
+
+
+# modelo sobre a base de validacao
+
+plot(modelo_tendencia_poli_proj, 
+     xlab="Tempo", 
+     ylab="Vendas", 
+     xaxt="n",
+     #ylim=c(150, 300),
+     xlim=c(2010, 2013.25), 
+     bty="l", 
+     flty=2,
+     main="Projeção - Modelo de Regressão Polinomial")
+
+axis(1, at=seq(2010, 2013, 1), labels=format(seq(2010, 2013,1)))
+lines(validacao_ts, bty="l", col="red")
+
+accuracy(modelo_tendencia_exp_proj, validacao_ts)
+
+# resultado final para projecao da realidade
+
+modelo_tendencia_poli_final <- tslm(data_ts ~ trend + I(trend^2))
+summary(modelo_tendencia_poli_final)
+modelo_tendencia_poli_final_proj <- forecast(modelo_tendencia_poli_final, h=36, level=0.95)
+
+plot(modelo_tendencia_poli_final_proj, 
+     xlab="Tempo", 
+     ylab="Vendas",
+     ylim=c(150, 300),
+     xlim=c(2010, 2013), 
+     bty="l", 
+     flty=2, 
+     main="Projeção Futura - Regressão Polinomial")
+lines(modelo_tendencia_exp_final_proj$fitted, lwd=2, col="blue")
+lines(validacao_ts, bty="l", col="red")
+
+### C) modelo sazonal
+
+ggseasonplot(data_ts)
+dummies_mensais <- seasonaldummy(data_ts)
+
+modelo_sazonalidade_linear <- tslm(treinamento_ts ~ season)
+summary(modelo_sazonalidade_linear)
+checkresiduals(modelo_sazonalidade_linear, test="LB")
+
+# observacao geral do modelo 
+
+plot(treinamento_ts, xlab="Tempo", ylab="Vendas", bty="l")
+lines(modelo_sazonalidade_linear$fitted.values, lwd=2, col='green')
+
+modelo_sazonalidade_linear_proj <- forecast(modelo_sazonalidade_linear, 
+                                            h = tam_amostra_teste, 
+                                            level=0.95)
+# modelo sobre a base de validacao
+
+plot(modelo_sazonalidade_linear_proj, 
+     xlab="Tempo", 
+     ylab="Vendas", 
+     xaxt="n",
+     #ylim=c(150, 300),
+     xlim=c(2010, 2013.25), 
+     bty="l", 
+     flty=2,
+     main="Projeção - Modelo Regressão Sazonal")
+
+axis(1, at=seq(2010, 2013, 1), labels=format(seq(2010, 2013,1)))
+lines(validacao_ts, bty="l", col="red")
+
+accuracy(modelo_sazonalidade_linear_proj, validacao_ts)
+
+
+# resultado final para projecao da realidade
+
+modelo_sazonalidade_linear_final <- tslm(data_ts ~ season)
+summary(modelo_sazonalidade_linear_final)
+modelo_sazonalidade_linear_final_proj <- forecast(modelo_sazonalidade_linear_final, 
+                                                  h=36, 
+                                                  level=0.95)
+
+plot(modelo_sazonalidade_linear_final_proj, 
+     xlab="Tempo", 
+     ylab="Vendas",
+     #ylim=c(150, 300),
+     xlim=c(2010, 2013), 
+     bty="l", 
+     flty=2, 
+     main="Projeção Futura - Regressão Sazonal")
+lines(modelo_sazonalidade_linear_final_proj$fitted, lwd=2, col="blue")
+lines(validacao_ts, bty="l", col="red")
+
+
+### D) modelo sazonal com tendencia
+
+ggseasonplot(data_ts)
+dummies_mensais <- seasonaldummy(data_ts)
+
+modelo_sazonal_tend_linear <- tslm(treinamento_ts ~ season + trend + I(trend^2))
+summary(modelo_sazonal_tend_linear)
+checkresiduals(modelo_sazonal_tend_linear, test="LB")
+
+# observacao geral do modelo 
+
+plot(treinamento_ts, xlab="Tempo", ylab="Vendas", bty="l")
+lines(modelo_sazonal_tend_linear$fitted.values, lwd=2, col='green')
+
+modelo_sazonal_tend_linear_proj <- forecast(modelo_sazonal_tend_linear, 
+                                            h = tam_amostra_teste, 
+                                            level=0.95)
+
+# modelo sobre a base de validacao
+
+plot(modelo_sazonal_tend_linear_proj, 
+     xlab="Tempo", 
+     ylab="Vendas", 
+     xaxt="n",
+     #ylim=c(150, 300),
+     xlim=c(2010, 2013.25), 
+     bty="l", 
+     flty=2,
+     main="Projeção - Modelo Regressão Sazonal+Tendência")
+
+axis(1, at=seq(2010, 2013, 1), labels=format(seq(2010, 2013,1)))
+lines(validacao_ts, bty="l", col="red")
+
+accuracy(modelo_sazonal_tend_linear_proj, validacao_ts)
+
+# resultado final para projecao da realidade
+
+modelo_sazonal_tend_linear_final <- tslm(data_ts ~ season + trend + I(trend^2))
+summary(modelo_sazonal_tend_linear_final)
+modelo_sazonal_tend_linear_final_proj <- forecast(modelo_sazonal_tend_linear_final, 
+                                                  h=36, 
+                                                  level=0.95)
+
+plot(modelo_sazonal_tend_linear_final_proj, 
+     xlab="Tempo", 
+     ylab="Vendas",
+     ylim=c(150, 300),
+     xlim=c(2010, 2013), 
+     bty="l", 
+     flty=2, 
+     main="Projeção Futura - Regressão Sazonal+Tendência")
+lines(modelo_sazonal_tend_linear_final_proj$fitted, lwd=2, col="blue")
+lines(validacao_ts, bty="l", col="red")
+
+### E) Média Móvel
+### F) Suavização exponencial
+### G) Suavização exponencial complexa
+### H) ARIMA
+
+
 

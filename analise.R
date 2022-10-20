@@ -483,6 +483,7 @@ summary(ur.df(treinamento_ts_diff))
 modelo_arima <- Arima(treinamento_ts_diff, order = c(2,1,1))
 summary(modelo_arima)
 modelo_arima_proj <- forecast(modelo_arima, h=tam_amostra_teste, level=0.95)
+checkresiduals(modelo_arima_proj)
 
 plot(modelo_arima_proj, 
      xlab="Tempo", 
@@ -530,6 +531,7 @@ modelo_auto_arima <- auto.arima(treinamento_ts_diff,
 
 summary(modelo_auto_arima)
 modelo_auto_arima_proj <- forecast(modelo_auto_arima, h=tam_amostra_teste, level=0.95)
+checkresiduals(modelo_auto_arima_proj)
 
 plot(modelo_auto_arima_proj, 
      xlab="Tempo", 
@@ -567,8 +569,6 @@ plot(modelo_auto_arima_final_proj,
      main="Projeção Futura - AUTO-ARIMA")
 lines(modelo_auto_arima_final_proj$fitted, lwd=2, col="blue")
 lines(validacao_ts, bty="l", col="red")
-
-
 
 
 

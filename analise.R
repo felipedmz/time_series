@@ -98,7 +98,9 @@ accuracy(modelo_tendencia_exp_proj, validacao_ts)
 
 modelo_tendencia_exp_final <- tslm(data_ts ~ trend, lambda = 0)
 summary(modelo_tendencia_exp_final)
-modelo_tendencia_exp_final_proj <- forecast(modelo_tendencia_exp_final, h=36, level=0.95)
+modelo_tendencia_exp_final_proj <- forecast(modelo_tendencia_exp_final, 
+                                            h=3, 
+                                            level=0.95)
 
 plot(modelo_tendencia_exp_final_proj, 
      xlab="Tempo", 
@@ -148,7 +150,9 @@ accuracy(modelo_tendencia_exp_proj, validacao_ts)
 
 modelo_tendencia_poli_final <- tslm(data_ts ~ trend + I(trend^2))
 summary(modelo_tendencia_poli_final)
-modelo_tendencia_poli_final_proj <- forecast(modelo_tendencia_poli_final, h=36, level=0.95)
+modelo_tendencia_poli_final_proj <- forecast(modelo_tendencia_poli_final, 
+                                             h=3, 
+                                             level=0.95)
 
 plot(modelo_tendencia_poli_final_proj, 
      xlab="Tempo", 
@@ -201,7 +205,7 @@ accuracy(modelo_sazonalidade_linear_proj, validacao_ts)
 modelo_sazonalidade_linear_final <- tslm(data_ts ~ season)
 summary(modelo_sazonalidade_linear_final)
 modelo_sazonalidade_linear_final_proj <- forecast(modelo_sazonalidade_linear_final, 
-                                                  h=36, 
+                                                  h=3, 
                                                   level=0.95)
 
 plot(modelo_sazonalidade_linear_final_proj, 
@@ -256,7 +260,7 @@ accuracy(modelo_sazonal_tend_linear_proj, validacao_ts)
 modelo_sazonal_tend_linear_final <- tslm(data_ts ~ season + trend + I(trend^2))
 summary(modelo_sazonal_tend_linear_final)
 modelo_sazonal_tend_linear_final_proj <- forecast(modelo_sazonal_tend_linear_final, 
-                                                  h=36, 
+                                                  h=3, 
                                                   level=0.95)
 
 plot(modelo_sazonal_tend_linear_final_proj, 

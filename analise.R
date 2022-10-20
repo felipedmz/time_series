@@ -2,6 +2,7 @@ library(dplyr)
 library(stringr)
 library(forecast)
 library(zoo)
+library(urca)
 
 import = as_tibble(read.csv2("D:/workspace/r_time_series/data/walmart-monthly-sales.csv"));
 
@@ -82,15 +83,12 @@ modelo_tendencia_exp_proj <- forecast(modelo_tendencia_exp,
                                       level=0)
 plot(modelo_tendencia_exp_proj, 
      xlab="Tempo", 
-     ylab="Vendas", 
-     xaxt="n", 
+     ylab="Vendas",
      ylim=c(150, 300),
      xlim=c(2010, 2013.25), 
      bty="l", 
      flty=2,
      main="Projeção - Modelo de Regressão Exponencial")
-
-axis(1, at=seq(2010, 2013, 1), labels=format(seq(2010, 2013,1)))
 lines(validacao_ts, bty="l", col="red")
 
 accuracy(modelo_tendencia_exp_proj, validacao_ts)
@@ -112,7 +110,6 @@ plot(modelo_tendencia_exp_final_proj,
      flty=2, 
      main="Projeção Futura - Regressão Exponencial")
 lines(modelo_tendencia_exp_final_proj$fitted, lwd=2, col="blue")
-
 lines(validacao_ts, bty="l", col="red")
 
 
@@ -144,7 +141,7 @@ plot(modelo_tendencia_poli_proj,
 axis(1, at=seq(2010, 2013, 1), labels=format(seq(2010, 2013,1)))
 lines(validacao_ts, bty="l", col="red")
 
-accuracy(modelo_tendencia_exp_proj, validacao_ts)
+accuracy(modelo_tendencia_poli_proj, validacao_ts)
 
 # resultado final para projecao da realidade
 
@@ -289,7 +286,6 @@ plot(treinamento_ts,
      xlab="Tempo", 
      bty="l",
      flty=2)
-
 lines(ma_simples, lwd=2, col="green")
 
 # modelo sobre a base de validacao
@@ -308,7 +304,6 @@ plot(treinamento_ts,
      bty="l",
      flty=2,
      main="Projeção - Modelo Média Móvel")
-
 lines(ma_simples_proj, lwd=2, lty=2, col="blue")
 lines(validacao_ts, bty="l", col="red")
 
@@ -355,7 +350,6 @@ plot(modelo_ses_proj,
      xlim=c(2010, 2013), 
      flty=2,
      main="Projeção - Modelo Suavização Exponencial Aditiva")
-
 lines(modelo_ses$fitted, lwd=2, col="blue")
 lines(validacao_ts, bty="l", col="red")
 
@@ -400,7 +394,6 @@ plot(modelo_ses_proj,
      xlim=c(2010, 2013), 
      flty=2,
      main="Projeção - Modelo Suavização Exponencial Multiplicativa")
-
 lines(modelo_ses$fitted, lwd=2, col="blue")
 lines(validacao_ts, bty="l", col="red")
 
@@ -445,7 +438,6 @@ plot(modelo_ses_proj,
      xlim=c(2010, 2013), 
      flty=2,
      main="Projeção - Modelo Suavização Exponencial Automática")
-
 lines(modelo_ses$fitted, lwd=2, col="blue")
 lines(validacao_ts, bty="l", col="red")
 
@@ -471,7 +463,112 @@ lines(modelo_ses_final_proj$fitted, lwd=2, col="blue")
 lines(validacao_ts, bty="l", col="red")
 
 
-### H) ARIMA
+### G-zero) definindo DIFERENCA  das amostras treinamento e teste para metricas KPSS e ADF 
+
+treinamento_ts_diff <- window(data_ts, 
+                         start=c(2010, 1), 
+                         end=c(2010, tam_amostra_treinamento))
+validacao_ts_diff <- window(data_ts, 
+                       start=c(2010, tam_amostra_treinamento + 1), 
+                       end=c(2010, tam_amostra_treinamento + tam_amostra_teste))
+
+summary(ur.kpss(treinamento_ts_diff))
+summary(ur.df(treinamento_ts_diff))
+
+
+### G1) ARIMA
+
+# modelo sobre a base de validacao
+
+modelo_arima <- Arima(treinamento_ts_diff, order = c(2,1,1))
+summary(modelo_arima)
+modelo_arima_proj <- forecast(modelo_arima, h=tam_amostra_teste, level=0.95)
+
+plot(modelo_arima_proj, 
+     xlab="Tempo", 
+     ylab="Vendas", 
+     xaxt="n",
+     #ylim=c(150, 300),
+     xlim=c(2010, 2013.25), 
+     bty="l", 
+     flty=2,
+     main="Projeção - Modelo ARIMA")
+lines(validacao_ts, bty="l", col="red")
+
+accuracy(modelo_arima_proj, validacao_ts)
+
+
+# resultado final para projecao da realidade
+
+modelo_arima_final <- Arima(data_ts, order = c(2,1,1))
+summary(modelo_arima_final)
+modelo_arima_final_proj <- forecast(modelo_arima_final, 
+                                  h=3, 
+                                  level=0.95)
+
+plot(modelo_arima_final_proj, 
+     xlab="Tempo", 
+     ylab="Vendas",
+     ylim=c(150, 300),
+     xlim=c(2010, 2013), 
+     bty="l", 
+     flty=2, 
+     main="Projeção Futura - ARIMA")
+lines(modelo_arima_final_proj$fitted, lwd=2, col="blue")
+lines(validacao_ts, bty="l", col="red")
+
+
+### G2) AUTO-ARIMA
+
+# modelo sobre a base de validacao
+
+
+modelo_auto_arima <- auto.arima(treinamento_ts_diff, 
+                                seasonal = FALSE, 
+                                stepwise=FALSE, 
+                                approximation = FALSE)
+
+summary(modelo_auto_arima)
+modelo_auto_arima_proj <- forecast(modelo_auto_arima, h=tam_amostra_teste, level=0.95)
+
+plot(modelo_auto_arima_proj, 
+     xlab="Tempo", 
+     ylab="Vendas", 
+     xaxt="n",
+     #ylim=c(150, 300),
+     xlim=c(2010, 2013.25), 
+     bty="l", 
+     flty=2,
+     main="Projeção - Modelo AUTO-ARIMA")
+lines(validacao_ts, bty="l", col="red")
+
+accuracy(modelo_auto_arima_proj, validacao_ts)
+
+
+# resultado final para projecao da realidade
+
+modelo_auto_arima_final <- auto.arima(data_ts, 
+                             seasonal = FALSE, 
+                             stepwise=FALSE, 
+                             approximation = FALSE)
+
+summary(modelo_auto_arima_final)
+modelo_auto_arima_final_proj <- forecast(modelo_auto_arima_final, 
+                                    h=3, 
+                                    level=0.95)
+
+plot(modelo_auto_arima_final_proj, 
+     xlab="Tempo", 
+     ylab="Vendas",
+     ylim=c(150, 300),
+     xlim=c(2010, 2013), 
+     bty="l", 
+     flty=2, 
+     main="Projeção Futura - AUTO-ARIMA")
+lines(modelo_auto_arima_final_proj$fitted, lwd=2, col="blue")
+lines(validacao_ts, bty="l", col="red")
+
+
 
 
 

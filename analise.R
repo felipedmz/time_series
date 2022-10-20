@@ -336,8 +336,139 @@ lines(data_ts)
 lines(validacao_ts, bty="l", col="red")
 
 
-### F) Suavização exponencial complexa
+### F1) Suavização exponencial complexa - ADITIVA (AAA)
 
+modelo_ses <- ets(treinamento_ts, model = "AAA")
+summary(modelo_ses)
+checkresiduals(modelo_ses, test="LB")
+
+
+# modelo sobre a base de validacao
+
+modelo_ses_proj <- forecast(modelo_ses, h=tam_amostra_teste, level=0.95)
+
+plot(modelo_ses_proj, 
+     ylim=c(150, 300), 
+     ylab="Vendas", 
+     xlab="Tempo", 
+     bty="l",
+     xlim=c(2010, 2013), 
+     flty=2,
+     main="Projeção - Modelo Suavização Exponencial Aditiva")
+
+lines(modelo_ses$fitted, lwd=2, col="blue")
+lines(validacao_ts, bty="l", col="red")
+
+accuracy(modelo_ses_proj, validacao_ts)
+
+# resultado final para projecao da realidade
+
+modelo_ses_final <- ets(data_ts, model = "AAA")
+summary(modelo_ses_final)
+modelo_ses_final_proj <- forecast(modelo_ses_final, 
+                                  h=3, 
+                                  level=0.95)
+
+plot(modelo_ses_final_proj, 
+     xlab="Tempo", 
+     ylab="Vendas",
+     ylim=c(150, 300),
+     xlim=c(2010, 2013), 
+     bty="l", 
+     flty=2, 
+     main="Projeção Futura -  Suavização Exponencial Aditiva")
+lines(modelo_ses_final_proj$fitted, lwd=2, col="blue")
+lines(validacao_ts, bty="l", col="red")
+
+
+### F2) Suavização exponencial complexa - MULTIPLICATIVA 
+
+modelo_ses <- ets(treinamento_ts, model = "MMM")
+summary(modelo_ses)
+checkresiduals(modelo_ses, test="LB")
+
+
+# modelo sobre a base de validacao
+
+modelo_ses_proj <- forecast(modelo_ses, h=tam_amostra_teste, level=0.95)
+
+plot(modelo_ses_proj, 
+     ylim=c(150, 300), 
+     ylab="Vendas", 
+     xlab="Tempo", 
+     bty="l",
+     xlim=c(2010, 2013), 
+     flty=2,
+     main="Projeção - Modelo Suavização Exponencial Multiplicativa")
+
+lines(modelo_ses$fitted, lwd=2, col="blue")
+lines(validacao_ts, bty="l", col="red")
+
+accuracy(modelo_ses_proj, validacao_ts)
+
+# resultado final para projecao da realidade
+
+modelo_ses_final <- ets(data_ts, model = "MMM")
+summary(modelo_ses_final)
+modelo_ses_final_proj <- forecast(modelo_ses_final, 
+                                  h=3, 
+                                  level=0.95)
+
+plot(modelo_ses_final_proj, 
+     xlab="Tempo", 
+     ylab="Vendas",
+     ylim=c(150, 300),
+     xlim=c(2010, 2013), 
+     bty="l", 
+     flty=2, 
+     main="Projeção Futura -  Suavização Exponencial Multiplicativa")
+lines(modelo_ses_final_proj$fitted, lwd=2, col="blue")
+lines(validacao_ts, bty="l", col="red")
+
+
+### F3) Suavização exponencial complexa - Automatica 
+
+modelo_ses <- ets(treinamento_ts, model = "ZZZ")
+summary(modelo_ses)
+checkresiduals(modelo_ses, test="LB")
+
+
+# modelo sobre a base de validacao
+
+modelo_ses_proj <- forecast(modelo_ses, h=tam_amostra_teste, level=0.95)
+
+plot(modelo_ses_proj, 
+     ylim=c(150, 300), 
+     ylab="Vendas", 
+     xlab="Tempo", 
+     bty="l",
+     xlim=c(2010, 2013), 
+     flty=2,
+     main="Projeção - Modelo Suavização Exponencial Automática")
+
+lines(modelo_ses$fitted, lwd=2, col="blue")
+lines(validacao_ts, bty="l", col="red")
+
+accuracy(modelo_ses_proj, validacao_ts)
+
+# resultado final para projecao da realidade
+
+modelo_ses_final <- ets(data_ts, model = "ZZZ")
+summary(modelo_ses_final)
+modelo_ses_final_proj <- forecast(modelo_ses_final, 
+                                  h=3, 
+                                  level=0.95)
+
+plot(modelo_ses_final_proj, 
+     xlab="Tempo", 
+     ylab="Vendas",
+     ylim=c(150, 300),
+     xlim=c(2010, 2013), 
+     bty="l", 
+     flty=2, 
+     main="Projeção Futura -  Suavização Exponencial Automática")
+lines(modelo_ses_final_proj$fitted, lwd=2, col="blue")
+lines(validacao_ts, bty="l", col="red")
 
 
 ### H) ARIMA

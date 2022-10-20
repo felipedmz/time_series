@@ -1,6 +1,8 @@
 library(dplyr)
 library(stringr)
 library(forecast)
+library(zoo)
+
 import = as_tibble(read.csv2("D:/workspace/r_time_series/data/walmart-monthly-sales.csv"));
 
 # fomatando coluna periodo
@@ -45,7 +47,7 @@ axis(1, at=seq(2010, 2013, 1), labels=format(seq(2010, 2013,1)))
 lines(validacao_ts, bty="l", col="red")
 
 
-# modelo naive
+# BASELINE) modelo naive
 
 modelo_naive <- naive(treinamento_ts, level=0, h=tam_amostra_teste)
 plot(modelo_naive, 
@@ -73,12 +75,11 @@ checkresiduals(modelo_tendencia_exp, test="LB")
 plot(treinamento_ts, xlab="Tempo", ylab="Vendas", bty="l")
 lines(modelo_tendencia_exp$fitted.values, lwd=2, col='green')
 
+# modelo sobre a base de validacao
+
 modelo_tendencia_exp_proj <- forecast(modelo_tendencia_exp, 
                                       h = tam_amostra_teste, 
                                       level=0)
-
-# modelo sobre a base de validacao
-
 plot(modelo_tendencia_exp_proj, 
      xlab="Tempo", 
      ylab="Vendas", 
@@ -126,10 +127,9 @@ checkresiduals(modelo_tendencia_poli, test="LB")
 plot(treinamento_ts, xlab="Tempo", ylab="Vendas", bty="l")
 lines(modelo_tendencia_poli$fitted.values, lwd=2, col='green')
 
-modelo_tendencia_poli_proj <- forecast(modelo_tendencia_poli, h = tam_amostra_teste, level=0.95)
-
-
 # modelo sobre a base de validacao
+
+modelo_tendencia_poli_proj <- forecast(modelo_tendencia_poli, h = tam_amostra_teste, level=0.95)
 
 plot(modelo_tendencia_poli_proj, 
      xlab="Tempo", 
@@ -179,10 +179,11 @@ checkresiduals(modelo_sazonalidade_linear, test="LB")
 plot(treinamento_ts, xlab="Tempo", ylab="Vendas", bty="l")
 lines(modelo_sazonalidade_linear$fitted.values, lwd=2, col='green')
 
+# modelo sobre a base de validacao
+
 modelo_sazonalidade_linear_proj <- forecast(modelo_sazonalidade_linear, 
                                             h = tam_amostra_teste, 
                                             level=0.95)
-# modelo sobre a base de validacao
 
 plot(modelo_sazonalidade_linear_proj, 
      xlab="Tempo", 
@@ -234,11 +235,12 @@ checkresiduals(modelo_sazonal_tend_linear, test="LB")
 plot(treinamento_ts, xlab="Tempo", ylab="Vendas", bty="l")
 lines(modelo_sazonal_tend_linear$fitted.values, lwd=2, col='green')
 
+
+# modelo sobre a base de validacao
+
 modelo_sazonal_tend_linear_proj <- forecast(modelo_sazonal_tend_linear, 
                                             h = tam_amostra_teste, 
                                             level=0.95)
-
-# modelo sobre a base de validacao
 
 plot(modelo_sazonal_tend_linear_proj, 
      xlab="Tempo", 
@@ -274,9 +276,70 @@ plot(modelo_sazonal_tend_linear_final_proj,
 lines(modelo_sazonal_tend_linear_final_proj$fitted, lwd=2, col="blue")
 lines(validacao_ts, bty="l", col="red")
 
-### E) Média Móvel
-### F) Suavização exponencial
-### G) Suavização exponencial complexa
+### E) Média Móvel Simples
+
+ma_simples <- rollmean(treinamento_ts, k=12, align="right")
+checkresiduals(treinamento_ts-ma_simples, test="LB")
+
+# observacao geral do modelo 
+
+plot(treinamento_ts, 
+     ylim=c(150, 300),
+     ylab="Vendas", 
+     xlab="Tempo", 
+     bty="l",
+     flty=2)
+
+lines(ma_simples, lwd=2, col="green")
+
+# modelo sobre a base de validacao
+
+ultima_ma <- tail(ma_simples, 1)
+ma_simples_proj <- ts(rep(ultima_ma, tam_amostra_teste), 
+                      start=c(2010, tam_amostra_treinamento+1), 
+                      end = c(2010, tam_amostra_treinamento + tam_amostra_teste), 
+                      freq=12)
+
+plot(treinamento_ts, 
+     ylim=c(150, 300), 
+     xlim=c(2010, 2013),
+     ylab="Vendas", 
+     xlab="Tempo", 
+     bty="l",
+     flty=2,
+     main="Projeção - Modelo Média Móvel")
+
+lines(ma_simples_proj, lwd=2, lty=2, col="blue")
+lines(validacao_ts, bty="l", col="red")
+
+accuracy(ma_simples, treinamento_ts)
+accuracy(ma_simples_proj, validacao_ts)
+
+# resultado final para projecao da realidade
+
+ma_simples_final <- rollmean(data_ts, k=12, align="right")
+summary(ma_simples_final)
+ma_simples_final_proj <- forecast(ma_simples_final, 
+                                  h=3, 
+                                  level=0.95)
+
+plot(ma_simples_final_proj, 
+     xlab="Tempo", 
+     ylab="Vendas",
+     ylim=c(150, 300),
+     xlim=c(2010, 2013), 
+     bty="l", 
+     flty=2, 
+     col="blue",
+     main="Projeção Futura - Média Móvel")
+lines(data_ts)
+lines(validacao_ts, bty="l", col="red")
+
+
+### F) Suavização exponencial complexa
+
+
+
 ### H) ARIMA
 
 

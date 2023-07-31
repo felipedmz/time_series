@@ -16,7 +16,7 @@ C) Modelo sazonal
 
 D) Modelo sazonal com tendencia
 
-E) Média Móvel Simples
+E) Média móvel Simples
 
 F1) Suavização exponencial complexa - Aditiva (AAA)
 

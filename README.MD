@@ -20,7 +20,7 @@ E) Média móvel Simples
 
 F1) Suavização exponencial complexa - Aditiva (AAA)
 
-F2) Suavização exponencial complexa - Multiplicativa
+F2) Suavização exponencial complexa - Multiplicativa (MMM)
 
 F3) Suavização exponencial complexa - Automática
 

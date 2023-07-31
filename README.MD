@@ -6,16 +6,26 @@ Walmart Sales Dataset of 45stores: https://www.kaggle.com/datasets/varsharam/wal
 
 ### > Steps
 
-0) naive model
-A) modelo de tendência exponencial
-B) modelo de tendência polinomial
-C) modelo sazonal
-D) modelo sazonal com tendencia
-E) Média Móvel Simples
-F1) Suavização exponencial complexa - ADITIVA (AAA)
-F2) Suavização exponencial complexa - MULTIPLICATIVA 
-F3) Suavização exponencial complexa - Automatica 
-G-zero) definindo DIFERENCA das amostras treinamento e teste para metricas KPSS e ADF 
-G1) ARIMA
-G2) AUTO-ARIMA
+Zero) Naive model
 
+A) Modelo de tendência exponencial
+
+B) Modelo de tendência polinomial
+
+C) Modelo sazonal
+
+D) Modelo sazonal com tendencia
+
+E) Média Móvel Simples
+
+F1) Suavização exponencial complexa - Aditiva (AAA)
+
+F2) Suavização exponencial complexa - Multiplicativa
+
+F3) Suavização exponencial complexa - Automática
+
+G-zero) Definição da diferença das amostras treinamento e teste - métricas KPSS e ADF 
+
+G1) Arima
+
+G2) Auto-Arima
